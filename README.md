@@ -1,0 +1,1 @@
+k is a simple program that acts as a pipe to and from Kinesis.
