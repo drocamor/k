@@ -3,6 +3,8 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"log"
+
 	"github.com/controlgroup/gaws/kinesis"
 
 	"fmt"
@@ -16,8 +18,9 @@ func main() {
 		os.Exit(1)
 	}
 
+	ks := kinesis.KinesisService{Endpoint: "https://kinesis.us-east-1.amazonaws.com"}
 	reader := bufio.NewReader(os.Stdin)
-	stream := &kinesis.Stream{Name: os.Args[1]}
+	stream := &kinesis.Stream{Name: os.Args[1], Service: &ks}
 	var b bytes.Buffer
 	bytesSent := 0
 	recordsSent := 0
@@ -32,11 +35,11 @@ func main() {
 
 		if b.Len()+len(line) > 50000 {
 			err := stream.PutRecord("foo", b.Bytes())
-		
+
 			if err != nil {
-				fmt.Println(err)
+				log.Fatal(err)
 			}
-			
+
 			bytesSent += b.Len()
 			recordsSent += 1
 			b.Reset()
@@ -48,7 +51,7 @@ func main() {
 	if b.Len() > 0 {
 		err := stream.PutRecord("foo", b.Bytes())
 		if err != nil {
-			fmt.Println(err)
+			log.Fatal(err)
 		}
 		bytesSent += b.Len()
 		recordsSent += 1
